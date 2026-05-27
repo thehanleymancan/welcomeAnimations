@@ -1,0 +1,292 @@
+<script>
+  /*add this script and the css <style>..</style> to a html page that has a body
+ darkens the page, has 3 single boots line dance, music notes above.. boots lean out and then the music notes drop .. as seen at http://unionbar.club 
+by Matt Hanley @thehanleymancan and Copilot
+  */
+
+function bootDance() { 
+document.addEventListener("DOMContentLoaded", () => {
+
+  /* --- SETUP --- */
+  const takeover = document.createElement("div");
+  takeover.id = "stage-takeover";
+  document.body.appendChild(takeover);
+
+  const container = document.createElement("div");
+  container.id = "bootline";
+  takeover.appendChild(container);
+
+  const spotlight = document.createElement("div");
+  spotlight.id = "spotlight";
+  container.appendChild(spotlight);
+
+  // the set of 3 single boots.. use your own src.. //
+
+  const bootsConfig = [
+    { src: "https://twowaystreet.app/render/upfront/special/union/boot-1.png", cls: "yellow", delay: 0 },
+    { src: "https://twowaystreet.app/render/upfront/special/union/boot-2.png", cls: "red",    delay: 200 },
+    { src: "https://twowaystreet.app/render/upfront/special/union/boot-3.png", cls: "black",  delay: 400 }
+  ];
+
+  const bootEls = [];
+
+  /* --- CREATE NOTES (idle pulse only) --- */
+  function createMusicNotes() {
+    const notes = ["🎵", "🎶", "🎵", "🎶"];
+    const spawned = [];
+
+    notes.forEach((note, i) => {
+      const el = document.createElement("div");
+      el.className = "music-note idle";
+      el.textContent = note;
+
+      const spread = window.innerWidth * 0.3;
+      const offset = (i - (notes.length - 1) / 2) * spread;
+      el.style.left = `calc(50% + ${offset}px)`;
+
+      takeover.appendChild(el);
+      spawned.push(el);
+    });
+
+    return spawned;
+  }
+
+  /* --- DROP NOTES AFTER FLICK --- */
+  function animateMusicNotes(spawned) {
+    spawned.forEach((el, i) => {
+      el.classList.remove("idle");
+
+      setTimeout(() => {
+        el.style.animation = `
+          dropDown 2.2s ease-out forwards,
+          pulseNote 1.1s ease-in-out
+        `;
+      }, i * 150);
+    });
+
+    setTimeout(() => {
+      spawned.forEach(el => el.classList.add("note-fade"));
+    }, 2600);
+
+    setTimeout(() => {
+      spawned.forEach(el => el.remove());
+    }, 3000);
+  }
+
+  /* Spawn notes immediately */
+  const spawnedNotes = createMusicNotes();
+
+  /* --- BOOTS ENTER --- */
+  bootsConfig.forEach((b) => {
+    const el = document.createElement("div");
+    el.className = `boot ${b.cls}`;
+    el.style.backgroundImage = `url('${b.src}')`;
+    container.appendChild(el);
+    bootEls.push(el);
+
+    setTimeout(() => {
+      el.classList.add("enter");
+    }, 400 + b.delay);
+
+    setTimeout(() => {
+      el.style.animation = "sway 0.6s ease-in-out 3";
+    }, 1200 + b.delay);
+  });
+
+  /* --- SPOTLIGHT POSITION --- */
+  setTimeout(() => {
+    const middleBoot = bootEls[1];
+    const bootRect = middleBoot.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+
+    spotlight.style.left = (bootRect.left - containerRect.left + bootRect.width/2 - 110) + "px";
+    spotlight.style.top  = (bootRect.top - containerRect.top + bootRect.height/2 - 140) + "px";
+  }, 200);
+
+  /* --- BOOT FLICK --- */
+  bootsConfig.forEach((b, index) => {
+    const el = bootEls[index];
+
+    setTimeout(() => {
+      el.style.animation = "preFlick 0.25s ease-out forwards";
+    }, 3000 + b.delay - 80);
+
+    setTimeout(() => {
+      el.style.animation = "flick 0.9s ease-out forwards";
+    }, 3000 + b.delay + 200);
+  });
+
+  /* --- TRIGGER NOTE DROP AFTER FLICK --- */
+  setTimeout(() => {
+    animateMusicNotes(spawnedNotes);
+    spotlight.style.opacity = 1;
+  }, 3600);
+
+  /* --- Fade out whole animation --- */
+  setTimeout(() => {
+    $("#union-takeover").fadeOut(1200); 
+  }, 6500);
+
+
+}); //end of Dom content loaded 
+
+} //end of function bootDance
+
+
+ const hasSeen = sessionStorage.getItem("danceSeen");
+
+  if (!hasSeen) {
+    sessionStorage.setItem("danceSeen", "true");
+    bootDance(); 
+}
+</script>
+
+
+<style>
+body.bootDance {
+  background: #777;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Disco background */
+@keyframes discoStrobe {
+  0%   { background: rgba(226,170,61,0.85); }
+  20%  { background: rgba(255,0,128,0.85); }
+  40%  { background: rgba(0,255,255,0.85); }
+  60%  { background: rgba(0,128,255,0.85); }
+  80%  { background: rgba(255,128,0,0.85); }
+  100% { background: rgba(226,170,61,0.85); }
+}
+
+#stage-takeover {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  animation: discoStrobe 2.8s linear infinite;
+}
+
+/* Bootline container */
+#bootline {
+  background: rgba(22, 20, 19, 0.55);
+  border-radius: 12px;
+  padding: 20px 40px;
+  backdrop-filter: blur(2px);
+  position: fixed;
+  top: 28vh;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 40px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Boots */
+.boot {
+  width: 98px;
+  height: 98px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+}
+
+.boot.enter {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* Color filters */
+.boot.yellow {
+  filter: brightness(3) sepia(1) hue-rotate(45deg) saturate(4);
+}
+.boot.red {
+  filter: brightness(3) sepia(1) hue-rotate(-10deg) saturate(6);
+}
+
+/* Sway */
+@keyframes sway {
+  0%   { transform: translateX(0); }
+  25%  { transform: translateX(12px); }
+  50%  { transform: translateX(0); }
+  75%  { transform: translateX(-12px); }
+  100% { transform: translateX(0); }
+}
+
+/* Flick */
+@keyframes preFlick {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(-4deg); }
+}
+@keyframes flick {
+  0%   { transform: rotate(-4deg) translateX(0) translateY(0); }
+  40%  { transform: rotate(12deg) translateY(-10px); }
+  70%  { transform: rotate(22deg) translateX(32px) translateY(-12px); }
+  100% { transform: rotate(22deg) translateX(32px) translateY(-12px); }
+}
+
+/* Music notes */
+.music-note {
+  position: absolute;
+  top: 12vh;
+  font-size: 32px;
+  opacity: 1;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Idle pulse BEFORE drop */
+@keyframes idlePulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+.music-note.idle {
+  animation: idlePulse 1.4s ease-in-out infinite;
+}
+
+/* Drop animation */
+@keyframes dropDown {
+  0%   { transform: translateY(0); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translateY(120px); opacity: 0.55; }
+}
+
+/* Pulse during drop */
+@keyframes pulseNote {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+.note-fade {
+  opacity: 0 !important;
+  transition: opacity 0.35s ease;
+}
+
+/* Spotlight */
+#spotlight {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(
+    circle,
+    rgba(255,255,255,0.75) 0%,
+    rgba(255,255,255,0.35) 40%,
+    rgba(255,255,255,0.05) 70%,
+    rgba(255,255,255,0) 100%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.9s ease-out;
+  filter: blur(2px);
+  z-index: -1;
+}
+</style>

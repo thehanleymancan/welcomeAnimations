@@ -1,0 +1,171 @@
+
+
+<script>
+//// THE PRODUCE STORM ENGINE //// 
+/*
+on page load, renders a downpour of randomly sized and motions of fruit and veggie emojis .. 
+optional: after one running, can instead do a reverse storm where the produce flies upwards to the sky
+
+copy this script and the <style> into a html page that has a body with class "produceStorm"
+
+by Matt Hanley @thehanleymancan and Copilot
+
+*/
+
+
+// Detect produceStorm by class
+const storm = document.body.classList.contains("produceStorm") 
+
+// Only run if storm is present
+if (storm) {
+  runStorm();
+}
+
+function runStorm() {
+
+  // First-visit vs return-visit logic
+  const hasSeen = sessionStorage.getItem("stormSeen");
+
+  /* if you only want to run the storm once, and subsequent do quick reverse storm */ 
+  if (!hasSeen) {
+    document.body.classList.add("chaos");
+    sessionStorage.setItem("stormSeen", "true");
+  } else {
+    document.body.classList.add("reverseStorm");
+  }
+
+  // Create the rain layer dynamically
+  const rainLayer = document.createElement("div");
+  rainLayer.id = "rain-layer";
+  document.body.appendChild(rainLayer);
+
+  const produce = [
+    "🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍒",
+    "🍑","🥭","🍍","🥝","🥑","🥦","🥬","🥕","🧅","🌽"
+  ];
+
+  function createFruit() {
+  const fruit = document.createElement("span");
+  fruit.classList.add("fruit");
+
+  // Random emoji
+  fruit.textContent = produce[Math.floor(Math.random() * produce.length)];
+
+  // Random size
+  const size = Math.random() * 140 + 20;
+  fruit.style.fontSize = size + "px";
+
+  // Random horizontal start
+  fruit.style.left = Math.random() * 100 + "vw";
+
+  // Random fall duration
+  const duration = Math.random() * 5 + 3;
+  fruit.style.setProperty("--duration", duration + "s");   // <-- REQUIRED
+
+  // Smooth drift distance
+  const drift = (Math.random() - 0.5) * 120;
+  fruit.style.setProperty("--drift", drift + "px");
+
+  // Rotation values
+  const spinMid = Math.random() * 180 + "deg";
+  const spinEnd = Math.random() * 360 + "deg";
+  fruit.style.setProperty("--spin-mid", spinMid);
+  fruit.style.setProperty("--spin-end", spinEnd);
+
+  // Default animation (will be overridden in reverseStorm)
+  fruit.style.animationName = "fallUnified";
+  fruit.style.animationDuration = duration + "s";
+
+  rainLayer.appendChild(fruit);
+
+  setTimeout(() => fruit.remove(), duration * 1000);
+}
+
+  // Start the storm
+  const stormInterval = setInterval(createFruit, 150);
+
+  // Fade out after 5 seconds
+  setTimeout(() => {
+    clearInterval(stormInterval);
+  }, 5000);
+}
+</script>
+
+<style>
+/* FRUIT AND VEG - PRODUCE - RAIN STORM */ 
+body.produceStorm {
+  margin: 0;
+  padding: 0;
+  background: #f7f7f2;
+  font-family: sans-serif;
+  position: relative;
+  height: 100vh;
+}
+
+#rain-layer {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+
+/* Unified fall + drift + rotation */
+@keyframes fallUnified {
+  0% {
+    transform: translate(0, -10vh) rotate(0deg);
+  }
+  50% {
+    transform: translate(var(--drift), 50vh) rotate(var(--spin-mid));
+  }
+  100% {
+    transform: translate(calc(var(--drift) * 0.5), 110vh) rotate(var(--spin-end));
+  }
+}
+
+.fruit {
+  position: absolute;
+  top: -10vh;
+  will-change: transform;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+
+
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+
+/* Reverse unified fall + drift + rotation */
+@keyframes riseUnified {
+  0% {
+    transform: translate(0, 110vh) rotate(0deg);
+  }
+  50% {
+    transform: translate(var(--drift), 50vh) rotate(var(--spin-mid));
+  }
+  100% {
+    transform: translate(calc(var(--drift) * 0.5), -20vh) rotate(var(--spin-end));
+  }
+}
+
+/* Vacuum cleaner reverse storm */
+@keyframes vacuumRise {
+  0% {
+    transform: translate(0, 110vh) rotate(0deg);
+  }
+  30% {
+    transform: translate(calc(var(--drift) * 0.3), 40vh) rotate(var(--spin-mid));
+  }
+  100% {
+    transform: translate(0, -40vh) rotate(var(--spin-end));
+  }
+}
+
+/* Override animation + speed for reverseStorm */
+body.reverseStorm .fruit { animation-name: vacuumRise !important; animation-duration: calc(var(--duration) / 3.5) !important; }
+</style>
+

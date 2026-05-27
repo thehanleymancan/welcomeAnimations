@@ -1,0 +1,401 @@
+
+<script>
+/*
+beer pour animation 
+renders the page as a container being filled with draft beer from a tap
+on first load, does full pour.. subsequent, (optional) can just show foam 
+example: https://twowaystreet.app/go/standsingsbar 
+
+add this script and the css to a html page that has a body with class 'beerTap' .. 
+
+by Matt Hanley @thehanleymancan and Copilot
+
+*/ 
+const isTaps =
+  document.body.classList.contains("beerTap");
+
+if (isTaps) runTapsIntro();
+
+function runTapsIntro() {
+  const hasSeen = sessionStorage.getItem("tapsIntroSeen");
+
+  // Build the layer FIRST (needed for both states)
+  const layer = document.createElement("div");
+  layer.id = "taps-layer";
+  document.body.appendChild(layer);
+
+  // Tap head
+  const tap = document.createElement("div");
+  tap.className = "tap-head";
+  layer.appendChild(tap);
+
+  // Stream
+  const stream = document.createElement("div");
+  stream.className = "beer-stream";
+  layer.appendChild(stream);
+
+  // Beer fill
+  const fill = document.createElement("div");
+  fill.className = "beer-fill";
+  layer.appendChild(fill);
+
+  // Foam
+  const foam = document.createElement("div");
+  foam.className = "beer-foam";
+  fill.appendChild(foam);
+
+  // Falling tail
+  const tail = document.createElement("div");
+  tail.className = "stream-tail";
+  layer.appendChild(tail);
+
+  if (!hasSeen) {
+    // FIRST VISIT → RUN POUR
+    sessionStorage.setItem("tapsIntroSeen", "true");
+    runPour(fill, tap, stream, tail);
+  } else {
+    // RETURN VISIT → SKIP POUR, SHOW FULL GLASS
+    setBeerFull(fill, foam);
+
+    // Remove stream + tail so they don't animate
+    stream.style.display = "none";
+    tail.style.display = "none";
+
+    // Remove tap animation classes
+    tap.style.animation = "none";
+  }
+}
+
+/* -----------------------------
+   FIRST VISIT: POUR
+------------------------------ */
+function runPour(fill, tap, stream, tail) {
+  // Bubbles spawn
+  setTimeout(() => spawnBubbles(), 1000);
+
+  // END OF POUR
+  fill.addEventListener("animationend", () => {
+    tap.classList.add("tap-stop");
+    stream.classList.add("sputter");
+
+    setTimeout(() => {
+      tail.classList.add("fall");
+    }, 120);
+  });
+
+  // WHOOSH + barmaidVibes
+  tail.addEventListener("animationend", () => {
+    fill.classList.add("whoosh");
+
+    setTimeout(() => {
+      barmaidVibes();
+    }, 300);
+  });
+}
+
+/* -----------------------------
+   RETURN VISIT: FULL GLASS
+------------------------------ */
+function setBeerFull(fill, foam) {
+  fill.style.height = "65vh";
+  foam.style.height = "50px";
+    setTimeout(() => {
+    removeTapStuff(); 
+  }, 2200);
+
+}
+
+/* -----------------------------
+   HELPERS
+------------------------------ */
+function spawnBubbles() {
+  const layer = document.getElementById("taps-layer");
+  const bubbles = document.createElement("div");
+  bubbles.className = "beer-bubbles";
+  layer.appendChild(bubbles);
+
+  for (let i = 0; i < 20; i++) {
+    const b = document.createElement("span");
+    const size = Math.random() * 6 + 4;
+    b.style.width = size + "px";
+    b.style.height = size + "px";
+    b.style.left = Math.random() * 90 + "%";
+    b.style.bottom = Math.random() * 55 + "vh";
+    b.style.animationDelay = (Math.random() * 1.2 + 0.4) + "s";
+    bubbles.appendChild(b);
+  }
+}
+
+// BARMAID VIBES
+function barmaidVibes() {
+  const vibe = document.createElement("div");
+  vibe.className = "barmaid-vibe";
+  vibe.textContent = "😘";
+  document.body.appendChild(vibe);
+
+  requestAnimationFrame(() => {
+    vibe.classList.add("enter");
+  });
+
+  setTimeout(() => {
+    vibe.classList.add("pulse");
+  }, 600);
+
+    setTimeout(() => {
+    removeTapStuff(); 
+  }, 1600);
+}
+
+//END THE SHOW 
+function removeTapStuff() {
+  $("#taps-layer,.barmaid-vibe").fadeOut("slow"); 
+}
+
+</script>
+
+<style>
+
+/* LAYER */
+#taps-layer {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* TAP HEAD */
+#taps-layer .tap-head {
+  position: absolute;
+  top: -80px;
+  left: 50%;
+  width: 80px;
+  height: 80px;
+  background: #444;
+  border-radius: 10px;
+  transform: translateX(-50%) scale(1) rotateX(0deg);
+  transform-origin: center top;
+  animation: tapDrop 0.6s ease-out forwards,
+             tapPull 0.4s ease-out forwards 0.6s;
+}
+
+@keyframes tapDrop { to { top: 20px; } }
+
+@keyframes tapPull {
+  to { transform: translateX(-50%) scale(1.12) rotateX(12deg); }
+}
+
+.tap-head.tap-stop {
+  animation: tapPush 0.4s ease-in forwards;
+}
+
+@keyframes tapPush {
+  to { transform: translateX(-50%) scale(0.92) rotateX(-10deg); }
+}
+
+/* STREAM */
+.beer-stream {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  width: 22px;
+  height: 0;
+  background: linear-gradient(to bottom, #f7d36b, #d89b1c);
+  border-radius: 12px;
+  transform: translateX(-50%);
+  animation: streamGrow 1.2s ease-out forwards 0.4s;
+}
+
+@keyframes streamGrow { to { height: 60vh; } }
+
+.beer-stream.sputter { animation: streamPinch 0.28s ease-out forwards; } @keyframes streamPinch { 0% { clip-path: inset(0 0 0 0); opacity: 1; } 60% { clip-path: inset(20% 0 0 0); opacity: 0.9; } 100% { clip-path: inset(100% 0 0 0); opacity: 0; } }
+/* FALLING TAIL */
+.stream-tail {
+  position: absolute;
+  left: 50%;
+  top: calc(100px + 60vh);
+  width: 18px;
+  height: 28px;
+  background: linear-gradient(to bottom, #f7d36b, #d89b1c);
+  border-radius: 10px;
+  transform: translateX(-50%);
+  opacity: 0;
+}
+
+.stream-tail.fall {
+  animation: tailFall 0.35s cubic-bezier(.3,.8,.4,1) forwards;
+}
+
+@keyframes tailFall {
+  0%   { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, 40px); }
+}
+
+/* BEER FILL */
+.beer-fill {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 0;
+  background: linear-gradient(to top, #d89b1c, #f2c94c);
+  animation: fillRise 1.8s ease-out forwards 0.6s;
+}
+
+@keyframes fillRise { to { height: 65vh; } }
+
+/* MENISCUS */
+.beer-fill::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255,255,255,0.35) 0%,
+    rgba(255,255,255,0) 70%
+  );
+  transform: translateY(8px);
+  opacity: 0;
+  animation: meniscusFade 1.2s ease-out forwards 0.8s;
+}
+
+@keyframes meniscusFade { to { opacity: 1; } }
+
+/* SHIMMER */
+.beer-fill::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: -25%;
+  width: 50%;
+  height: 18px;
+  background: linear-gradient(
+    to right,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.65) 50%,
+    rgba(255,255,255,0) 100%
+  );
+  border-radius: 50%;
+  opacity: 0;
+  animation: shimmerPass 1.4s ease-out forwards 1.1s;
+}
+
+@keyframes shimmerPass {
+  0%   { transform: translateX(0); opacity: 0; }
+  20%  { opacity: 0.9; }
+  100% { transform: translateX(180%); opacity: 0; }
+}
+
+/* WHOOSH */
+.beer-fill.whoosh::after {
+  animation: meniscusWhoosh 0.25s ease-out forwards;
+}
+
+@keyframes meniscusWhoosh {
+  0%   { transform: translateY(8px) scaleX(1); }
+  50%  { transform: translateY(10px) scaleX(1.03); }
+  100% { transform: translateY(8px) scaleX(1); }
+}
+
+/* FOAM */
+.beer-foam {
+  position: absolute;
+  bottom: 100%;
+  width: 100%;
+  height: 0;
+  border-radius: 50% 50% 0 0;
+  transform-origin: bottom;
+  background:
+    radial-gradient(circle at 20% 40%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 60%),
+    radial-gradient(circle at 70% 30%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 55%),
+    radial-gradient(circle at 40% 70%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 50%),
+    linear-gradient(to top, #fff7d9, #fffdf3);
+  box-shadow: inset 0 -6px 12px rgba(255,215,130,0.25);
+  animation: foamBloom 1.4s cubic-bezier(.25,.8,.25,1) forwards 1.0s;
+}
+
+@keyframes foamBloom {
+  0%   { height: 0; }
+  60%  { height: 55px; }
+  80%  { height: 48px; }
+  100% { height: 50px; }
+}
+
+/* BUBBLES */
+.beer-bubbles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.beer-bubbles span {
+  position: absolute;
+  background: rgba(255,255,255,0.45);
+  border-radius: 50%;
+  opacity: 0;
+  animation: bubbleRise 2.4s ease-out forwards;
+}
+
+@keyframes bubbleRise {
+  0%   { transform: translateY(20px) scale(0.6); opacity: 0; }
+  20%  { opacity: 0.8; }
+  100% { transform: translateY(-60px) scale(1); opacity: 0; }
+}
+
+/* BARMAID VIBES */
+.barmaid-vibe {
+  position: fixed;
+  top: 40px;          /* moved from bottom to top */
+  right: -140px;      /* offstage right now */
+  font-size: 80px;    /* 25% larger (64 → 80) */
+  opacity: 0;
+  transform: scale(0.8);
+  transition:
+    transform 0.4s ease-out,
+    opacity 0.4s ease-out,
+    right 0.6s cubic-bezier(.25,.8,.25,1);
+  pointer-events: none;
+  z-index: 99999;
+}
+
+.barmaid-vibe.enter {
+  right: 40px;        /* slides in from the right */
+  opacity: 1;
+}
+
+
+.barmaid-vibe.pulse {
+  animation: vibePulse 2.8s ease-in-out infinite;
+}
+
+@keyframes vibePulse {
+  0%   { transform: scale(1.05); }
+  20%  { transform: scale(1.22); }
+  55%  { transform: scale(1.10); }
+  100% { transform: scale(1.05); }
+}
+
+/* SIP ANIMATION */
+.beer-fill.sip {
+  transition: height 1.5s ease;
+}
+
+.beer-foam.sip {
+  transition: height 1.5s ease;
+}
+
+/* Tap wobble for Sip */
+.tap-head.wobble {
+  animation: tapWobble 0.6s ease-out;
+}
+
+@keyframes tapWobble {
+  0%   { transform: translateX(-50%) rotateX(0deg) rotateZ(0deg); }
+  30%  { transform: translateX(-50%) rotateX(4deg) rotateZ(-6deg); }
+  60%  { transform: translateX(-50%) rotateX(2deg) rotateZ(4deg); }
+  100% { transform: translateX(-50%) rotateX(0deg) rotateZ(0deg); }
+}
+
+</style>
