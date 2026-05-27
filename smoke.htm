@@ -1,0 +1,222 @@
+<!-- 
+
+SMOKE with text
+see line 46 replacing Text .. 
+EXAMPLE: https://twowaystreet.app/dirct/103-1354 Hoboken Cigar Club
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Smoke with Text</title>
+</head>
+<body>
+
+
+<div class="smoke-lounge">
+  <canvas id="smokeCanvas"></canvas>
+</div>
+
+</div>
+
+
+<script type="text/javascript">
+    
+const canvas = document.getElementById('smokeCanvas');
+const ctx = canvas.getContext('2d');
+
+// Offscreen canvas for text mask
+const textCanvas = document.createElement('canvas');
+const textCtx = textCanvas.getContext('2d');
+
+let revealProgress = 0; // 0 → 1 fade-in of text mask
+
+function resize() {
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+
+  textCanvas.width = canvas.width;
+  textCanvas.height = canvas.height;
+
+  drawTextMask();
+}
+resize();
+window.addEventListener('resize', resize);
+
+/* ---------------------------
+   DRAW NEGATIVE-SPACE TEXT MASK
+----------------------------*/
+function drawTextMask() {
+  const w = textCanvas.width;
+  const h = textCanvas.height;
+
+  textCtx.clearRect(0, 0, w, h);
+
+  textCtx.fillStyle = "white";
+  textCtx.textAlign = "center";
+  textCtx.textBaseline = "middle";
+
+  const fontSize = w * 0.12;
+
+  textCtx.font = `700 ${fontSize}px serif`;
+  textCtx.fillText("HOBOKEN", w / 2, h * 0.35);
+
+  textCtx.font = `600 ${fontSize * 0.9}px serif`;
+  textCtx.fillText("CIGAR", w / 2, h * 0.50);
+
+  textCtx.font = `600 ${fontSize * 0.9}px serif`;
+  textCtx.fillText("CLUB", w / 2, h * 0.65);
+}
+
+/* ---------------------------
+   GLOBAL AIRFLOW
+----------------------------*/
+let wind = 0;
+
+function updateWind() {
+  wind += (Math.random() - 0.5) * 0.002;
+  wind = Math.max(-0.15, Math.min(0.15, wind));
+}
+
+/* ---------------------------
+   SMOKE WISPS
+----------------------------*/
+class Wisp {
+  constructor() {
+    this.reset();
+  }
+
+  reset() {
+    this.x = canvas.width * (0.35 + Math.random() * 0.3);
+    this.y = canvas.height * (0.7 + Math.random() * 0.3);
+
+    this.alpha = 0.08 + Math.random() * 0.12;
+    this.size = 40 + Math.random() * 60;
+
+    this.speed = 0.25 + Math.random() * 0.35;
+
+    this.drift = (Math.random() - 0.5) * 0.3;
+    this.curl = (Math.random() - 0.5) * 0.002;
+
+    this.life = 0;
+    this.maxLife = 600 + Math.random() * 400;
+  }
+
+  update() {
+    this.x += Math.sin(this.life * 0.02) * 0.6;
+    this.drift += this.curl;
+    this.x += this.drift;
+
+    this.x += wind;
+
+    this.y -= this.speed;
+
+    this.life++;
+    if (this.life > this.maxLife) this.reset();
+  }
+
+  draw() {
+    const g = ctx.createRadialGradient(
+      this.x, this.y, 0,
+      this.x, this.y, this.size
+    );
+
+    g.addColorStop(0, `rgba(255,255,255,${this.alpha})`);
+    g.addColorStop(1, `rgba(255,255,255,0)`);
+
+    ctx.fillStyle = g;
+    ctx.fillRect(this.x - this.size, this.y - this.size, this.size * 2, this.size * 2);
+  }
+}
+
+/* ---------------------------
+   HEAT SHIMMER
+----------------------------*/
+function applyHeatShimmer() {
+  const h = canvas.height;
+  const shimmerHeight = h * 0.35;
+
+  const img = ctx.getImageData(0, h - shimmerHeight, canvas.width, shimmerHeight);
+
+  const offset = Math.sin(Date.now() * 0.002) * 2;
+
+  ctx.putImageData(img, 0, h - shimmerHeight + offset);
+}
+
+/* ---------------------------
+   NEGATIVE-SPACE TEXT REVEAL
+----------------------------*/
+function applyTextMask() {
+  if (revealProgress <= 0) return;
+
+  ctx.save();
+  ctx.globalAlpha = revealProgress;
+
+  ctx.globalCompositeOperation = "destination-out";
+  ctx.drawImage(textCanvas, 0, 0);
+
+  ctx.restore();
+}
+
+/* ---------------------------
+   ENGINE SETUP
+----------------------------*/
+const wisps = Array.from({ length: 80 }, () => new Wisp());
+
+setTimeout(() => {
+  const fade = setInterval(() => {
+    revealProgress += 0.01;
+    if (revealProgress >= 1) clearInterval(fade);
+  }, 50);
+}, 3000); // wait 3 seconds before reveal
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  updateWind();
+
+  wisps.forEach(w => {
+    w.update();
+    w.draw();
+  });
+
+  applyHeatShimmer();
+  applyTextMask();
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+
+</script>
+
+
+
+<style>
+
+.smoke-lounge {
+  width: 100%;
+  position: relative;
+  background: #111;
+}
+
+.smoke-lounge::before {
+  content: "";
+  display: block;
+  padding-top: calc(100% * 2 / 3);
+}
+
+#smokeCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+
+</style>
+
+</body>
+</html>
