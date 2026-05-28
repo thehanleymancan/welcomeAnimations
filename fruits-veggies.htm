@@ -1,4 +1,97 @@
 
+<!doctype html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Produce Storm by MH</title>
+
+
+ <meta name="description" content="fruits and veggies storm and reverse ">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* FRUIT AND VEG - PRODUCE - RAIN STORM */ 
+body.produceStorm {
+  margin: 0;
+  padding: 0;
+  background: #333;
+  font-family: sans-serif;
+  position: relative;
+  height: 100vh;
+}
+
+#rain-layer {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+
+/* Unified fall + drift + rotation */
+@keyframes fallUnified {
+  0% {
+    transform: translate(0, -10vh) rotate(0deg);
+  }
+  50% {
+    transform: translate(var(--drift), 50vh) rotate(var(--spin-mid));
+  }
+  100% {
+    transform: translate(calc(var(--drift) * 0.5), 110vh) rotate(var(--spin-end));
+  }
+}
+
+.fruit {
+  position: absolute;
+  top: -10vh;
+  will-change: transform;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+
+
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+
+/* Reverse unified fall + drift + rotation */
+@keyframes riseUnified {
+  0% {
+    transform: translate(0, 110vh) rotate(0deg);
+  }
+  50% {
+    transform: translate(var(--drift), 50vh) rotate(var(--spin-mid));
+  }
+  100% {
+    transform: translate(calc(var(--drift) * 0.5), -20vh) rotate(var(--spin-end));
+  }
+}
+
+/* Vacuum cleaner reverse storm */
+@keyframes vacuumRise {
+  0% {
+    transform: translate(0, 110vh) rotate(0deg);
+  }
+  30% {
+    transform: translate(calc(var(--drift) * 0.3), 40vh) rotate(var(--spin-mid));
+  }
+  100% {
+    transform: translate(0, -40vh) rotate(var(--spin-end));
+  }
+}
+
+/* Override animation + speed for reverseStorm */
+body.reverseStorm .fruit { animation-name: vacuumRise !important; animation-duration: calc(var(--duration) / 3.5) !important; }
+</style>
+
+
+</head>
+<body class="produceStorm" >
+
+
 
 <script>
 //// THE PRODUCE STORM ENGINE //// 
@@ -91,81 +184,7 @@ function runStorm() {
 }
 </script>
 
-<style>
-/* FRUIT AND VEG - PRODUCE - RAIN STORM */ 
-body.produceStorm {
-  margin: 0;
-  padding: 0;
-  background: #f7f7f2;
-  font-family: sans-serif;
-  position: relative;
-  height: 100vh;
-}
-
-#rain-layer {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 9999;
-}
 
 
-/* Unified fall + drift + rotation */
-@keyframes fallUnified {
-  0% {
-    transform: translate(0, -10vh) rotate(0deg);
-  }
-  50% {
-    transform: translate(var(--drift), 50vh) rotate(var(--spin-mid));
-  }
-  100% {
-    transform: translate(calc(var(--drift) * 0.5), 110vh) rotate(var(--spin-end));
-  }
-}
-
-.fruit {
-  position: absolute;
-  top: -10vh;
-  will-change: transform;
-  animation-timing-function: ease-in;
-  animation-fill-mode: forwards;
-}
-
-
-
-@keyframes fadeIn {
-  to { opacity: 1; }
-}
-
-
-/* Reverse unified fall + drift + rotation */
-@keyframes riseUnified {
-  0% {
-    transform: translate(0, 110vh) rotate(0deg);
-  }
-  50% {
-    transform: translate(var(--drift), 50vh) rotate(var(--spin-mid));
-  }
-  100% {
-    transform: translate(calc(var(--drift) * 0.5), -20vh) rotate(var(--spin-end));
-  }
-}
-
-/* Vacuum cleaner reverse storm */
-@keyframes vacuumRise {
-  0% {
-    transform: translate(0, 110vh) rotate(0deg);
-  }
-  30% {
-    transform: translate(calc(var(--drift) * 0.3), 40vh) rotate(var(--spin-mid));
-  }
-  100% {
-    transform: translate(0, -40vh) rotate(var(--spin-end));
-  }
-}
-
-/* Override animation + speed for reverseStorm */
-body.reverseStorm .fruit { animation-name: vacuumRise !important; animation-duration: calc(var(--duration) / 3.5) !important; }
-</style>
-
+</body>
+</html>

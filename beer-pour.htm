@@ -1,159 +1,20 @@
+<!doctype html>
 
-<script>
-/*
-beer pour animation 
-renders the page as a container being filled with draft beer from a tap
-on first load, does full pour.. subsequent, (optional) can just show foam 
-example: https://twowaystreet.app/go/standsingsbar 
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Beer Pour by MH</title>
 
-add this script and the css to a html page that has a body with class 'beerTap' .. 
 
-by Matt Hanley @thehanleymancan and Copilot
-
-*/ 
-const isTaps =
-  document.body.classList.contains("beerTap");
-
-if (isTaps) runTapsIntro();
-
-function runTapsIntro() {
-  const hasSeen = sessionStorage.getItem("tapsIntroSeen");
-
-  // Build the layer FIRST (needed for both states)
-  const layer = document.createElement("div");
-  layer.id = "taps-layer";
-  document.body.appendChild(layer);
-
-  // Tap head
-  const tap = document.createElement("div");
-  tap.className = "tap-head";
-  layer.appendChild(tap);
-
-  // Stream
-  const stream = document.createElement("div");
-  stream.className = "beer-stream";
-  layer.appendChild(stream);
-
-  // Beer fill
-  const fill = document.createElement("div");
-  fill.className = "beer-fill";
-  layer.appendChild(fill);
-
-  // Foam
-  const foam = document.createElement("div");
-  foam.className = "beer-foam";
-  fill.appendChild(foam);
-
-  // Falling tail
-  const tail = document.createElement("div");
-  tail.className = "stream-tail";
-  layer.appendChild(tail);
-
-  if (!hasSeen) {
-    // FIRST VISIT → RUN POUR
-    sessionStorage.setItem("tapsIntroSeen", "true");
-    runPour(fill, tap, stream, tail);
-  } else {
-    // RETURN VISIT → SKIP POUR, SHOW FULL GLASS
-    setBeerFull(fill, foam);
-
-    // Remove stream + tail so they don't animate
-    stream.style.display = "none";
-    tail.style.display = "none";
-
-    // Remove tap animation classes
-    tap.style.animation = "none";
-  }
-}
-
-/* -----------------------------
-   FIRST VISIT: POUR
------------------------------- */
-function runPour(fill, tap, stream, tail) {
-  // Bubbles spawn
-  setTimeout(() => spawnBubbles(), 1000);
-
-  // END OF POUR
-  fill.addEventListener("animationend", () => {
-    tap.classList.add("tap-stop");
-    stream.classList.add("sputter");
-
-    setTimeout(() => {
-      tail.classList.add("fall");
-    }, 120);
-  });
-
-  // WHOOSH + barmaidVibes
-  tail.addEventListener("animationend", () => {
-    fill.classList.add("whoosh");
-
-    setTimeout(() => {
-      barmaidVibes();
-    }, 300);
-  });
-}
-
-/* -----------------------------
-   RETURN VISIT: FULL GLASS
------------------------------- */
-function setBeerFull(fill, foam) {
-  fill.style.height = "65vh";
-  foam.style.height = "50px";
-    setTimeout(() => {
-    removeTapStuff(); 
-  }, 2200);
-
-}
-
-/* -----------------------------
-   HELPERS
------------------------------- */
-function spawnBubbles() {
-  const layer = document.getElementById("taps-layer");
-  const bubbles = document.createElement("div");
-  bubbles.className = "beer-bubbles";
-  layer.appendChild(bubbles);
-
-  for (let i = 0; i < 20; i++) {
-    const b = document.createElement("span");
-    const size = Math.random() * 6 + 4;
-    b.style.width = size + "px";
-    b.style.height = size + "px";
-    b.style.left = Math.random() * 90 + "%";
-    b.style.bottom = Math.random() * 55 + "vh";
-    b.style.animationDelay = (Math.random() * 1.2 + 0.4) + "s";
-    bubbles.appendChild(b);
-  }
-}
-
-// BARMAID VIBES
-function barmaidVibes() {
-  const vibe = document.createElement("div");
-  vibe.className = "barmaid-vibe";
-  vibe.textContent = "😘";
-  document.body.appendChild(vibe);
-
-  requestAnimationFrame(() => {
-    vibe.classList.add("enter");
-  });
-
-  setTimeout(() => {
-    vibe.classList.add("pulse");
-  }, 600);
-
-    setTimeout(() => {
-    removeTapStuff(); 
-  }, 1600);
-}
-
-//END THE SHOW 
-function removeTapStuff() {
-  $("#taps-layer,.barmaid-vibe").fadeOut("slow"); 
-}
-
-</script>
+ <meta name="description" content="pour beer using html5 animation.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+
+  body.beerTap {
+    /*use  a dark bg color for contrast */ 
+    background: #222;
+  }
 
 /* LAYER */
 #taps-layer {
@@ -399,3 +260,170 @@ function removeTapStuff() {
 }
 
 </style>
+
+    </head>
+    <body class="beerTap">
+      <div class="stage">
+
+
+      </div>
+
+
+
+
+<script>
+/*
+beer pour animation 
+renders the page as a container being filled with draft beer from a tap
+on first load, does full pour.. subsequent, (optional) can just show foam 
+example: https://twowaystreet.app/go/standsingsbar 
+
+add this script and the css to a html page that has a body with class 'beerTap' .. 
+
+by Matt Hanley @thehanleymancan and Copilot
+
+*/ 
+const isTaps =
+  document.body.classList.contains("beerTap");
+
+if (isTaps) runTapsIntro();
+
+function runTapsIntro() {
+  const hasSeen = sessionStorage.getItem("tapsIntroSeen");
+
+  // Build the layer FIRST (needed for both states)
+  const layer = document.createElement("div");
+  layer.id = "taps-layer";
+  document.body.appendChild(layer);
+
+  // Tap head
+  const tap = document.createElement("div");
+  tap.className = "tap-head";
+  layer.appendChild(tap);
+
+  // Stream
+  const stream = document.createElement("div");
+  stream.className = "beer-stream";
+  layer.appendChild(stream);
+
+  // Beer fill
+  const fill = document.createElement("div");
+  fill.className = "beer-fill";
+  layer.appendChild(fill);
+
+  // Foam
+  const foam = document.createElement("div");
+  foam.className = "beer-foam";
+  fill.appendChild(foam);
+
+  // Falling tail
+  const tail = document.createElement("div");
+  tail.className = "stream-tail";
+  layer.appendChild(tail);
+
+  if (!hasSeen) {
+    // FIRST VISIT → RUN POUR
+    sessionStorage.setItem("tapsIntroSeen", "true");
+    runPour(fill, tap, stream, tail);
+  } else {
+    // RETURN VISIT → SKIP POUR, SHOW FULL GLASS
+    setBeerFull(fill, foam);
+
+    // Remove stream + tail so they don't animate
+    stream.style.display = "none";
+    tail.style.display = "none";
+
+    // Remove tap animation classes
+    tap.style.animation = "none";
+  }
+}
+
+/* -----------------------------
+   FIRST VISIT: POUR
+------------------------------ */
+function runPour(fill, tap, stream, tail) {
+  // Bubbles spawn
+  setTimeout(() => spawnBubbles(), 1000);
+
+  // END OF POUR
+  fill.addEventListener("animationend", () => {
+    tap.classList.add("tap-stop");
+    stream.classList.add("sputter");
+
+    setTimeout(() => {
+      tail.classList.add("fall");
+    }, 120);
+  });
+
+  // WHOOSH + barmaidVibes
+  tail.addEventListener("animationend", () => {
+    fill.classList.add("whoosh");
+
+    setTimeout(() => {
+      barmaidVibes();
+    }, 300);
+  });
+}
+
+/* -----------------------------
+   RETURN VISIT: FULL GLASS
+------------------------------ */
+function setBeerFull(fill, foam) {
+  fill.style.height = "65vh";
+  foam.style.height = "50px";
+    setTimeout(() => {
+    removeTapStuff(); 
+  }, 2200);
+
+}
+
+/* -----------------------------
+   HELPERS
+------------------------------ */
+function spawnBubbles() {
+  const layer = document.getElementById("taps-layer");
+  const bubbles = document.createElement("div");
+  bubbles.className = "beer-bubbles";
+  layer.appendChild(bubbles);
+
+  for (let i = 0; i < 20; i++) {
+    const b = document.createElement("span");
+    const size = Math.random() * 6 + 4;
+    b.style.width = size + "px";
+    b.style.height = size + "px";
+    b.style.left = Math.random() * 90 + "%";
+    b.style.bottom = Math.random() * 55 + "vh";
+    b.style.animationDelay = (Math.random() * 1.2 + 0.4) + "s";
+    bubbles.appendChild(b);
+  }
+}
+
+// BARMAID VIBES
+function barmaidVibes() {
+  const vibe = document.createElement("div");
+  vibe.className = "barmaid-vibe";
+  vibe.textContent = "😘";
+  document.body.appendChild(vibe);
+
+  requestAnimationFrame(() => {
+    vibe.classList.add("enter");
+  });
+
+  setTimeout(() => {
+    vibe.classList.add("pulse");
+  }, 600);
+
+    setTimeout(() => {
+    removeTapStuff(); 
+  }, 1600);
+}
+
+//END THE SHOW 
+function removeTapStuff() {
+  $("#taps-layer,.barmaid-vibe").fadeOut("slow"); 
+}
+
+</script>
+
+</body>
+</html>

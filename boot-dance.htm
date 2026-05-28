@@ -1,146 +1,14 @@
-<script>
-  /*add this script and the css <style>..</style> to a html page that has a body
- darkens the page, has 3 single boots line dance, music notes above.. boots lean out and then the music notes drop .. as seen at http://unionbar.club 
-by Matt Hanley @thehanleymancan and Copilot
-  */
 
-function bootDance() { 
-document.addEventListener("DOMContentLoaded", () => {
+<!doctype html>
 
-  /* --- SETUP --- */
-  const takeover = document.createElement("div");
-  takeover.id = "stage-takeover";
-  document.body.appendChild(takeover);
-
-  const container = document.createElement("div");
-  container.id = "bootline";
-  takeover.appendChild(container);
-
-  const spotlight = document.createElement("div");
-  spotlight.id = "spotlight";
-  container.appendChild(spotlight);
-
-  // the set of 3 single boots.. use your own src.. //
-
-  const bootsConfig = [
-    { src: "https://twowaystreet.app/render/upfront/special/union/boot-1.png", cls: "yellow", delay: 0 },
-    { src: "https://twowaystreet.app/render/upfront/special/union/boot-2.png", cls: "red",    delay: 200 },
-    { src: "https://twowaystreet.app/render/upfront/special/union/boot-3.png", cls: "black",  delay: 400 }
-  ];
-
-  const bootEls = [];
-
-  /* --- CREATE NOTES (idle pulse only) --- */
-  function createMusicNotes() {
-    const notes = ["🎵", "🎶", "🎵", "🎶"];
-    const spawned = [];
-
-    notes.forEach((note, i) => {
-      const el = document.createElement("div");
-      el.className = "music-note idle";
-      el.textContent = note;
-
-      const spread = window.innerWidth * 0.3;
-      const offset = (i - (notes.length - 1) / 2) * spread;
-      el.style.left = `calc(50% + ${offset}px)`;
-
-      takeover.appendChild(el);
-      spawned.push(el);
-    });
-
-    return spawned;
-  }
-
-  /* --- DROP NOTES AFTER FLICK --- */
-  function animateMusicNotes(spawned) {
-    spawned.forEach((el, i) => {
-      el.classList.remove("idle");
-
-      setTimeout(() => {
-        el.style.animation = `
-          dropDown 2.2s ease-out forwards,
-          pulseNote 1.1s ease-in-out
-        `;
-      }, i * 150);
-    });
-
-    setTimeout(() => {
-      spawned.forEach(el => el.classList.add("note-fade"));
-    }, 2600);
-
-    setTimeout(() => {
-      spawned.forEach(el => el.remove());
-    }, 3000);
-  }
-
-  /* Spawn notes immediately */
-  const spawnedNotes = createMusicNotes();
-
-  /* --- BOOTS ENTER --- */
-  bootsConfig.forEach((b) => {
-    const el = document.createElement("div");
-    el.className = `boot ${b.cls}`;
-    el.style.backgroundImage = `url('${b.src}')`;
-    container.appendChild(el);
-    bootEls.push(el);
-
-    setTimeout(() => {
-      el.classList.add("enter");
-    }, 400 + b.delay);
-
-    setTimeout(() => {
-      el.style.animation = "sway 0.6s ease-in-out 3";
-    }, 1200 + b.delay);
-  });
-
-  /* --- SPOTLIGHT POSITION --- */
-  setTimeout(() => {
-    const middleBoot = bootEls[1];
-    const bootRect = middleBoot.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-
-    spotlight.style.left = (bootRect.left - containerRect.left + bootRect.width/2 - 110) + "px";
-    spotlight.style.top  = (bootRect.top - containerRect.top + bootRect.height/2 - 140) + "px";
-  }, 200);
-
-  /* --- BOOT FLICK --- */
-  bootsConfig.forEach((b, index) => {
-    const el = bootEls[index];
-
-    setTimeout(() => {
-      el.style.animation = "preFlick 0.25s ease-out forwards";
-    }, 3000 + b.delay - 80);
-
-    setTimeout(() => {
-      el.style.animation = "flick 0.9s ease-out forwards";
-    }, 3000 + b.delay + 200);
-  });
-
-  /* --- TRIGGER NOTE DROP AFTER FLICK --- */
-  setTimeout(() => {
-    animateMusicNotes(spawnedNotes);
-    spotlight.style.opacity = 1;
-  }, 3600);
-
-  /* --- Fade out whole animation --- */
-  setTimeout(() => {
-    $("#union-takeover").fadeOut(1200); 
-  }, 6500);
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Boot Dance by MH</title>
 
 
-}); //end of Dom content loaded 
-
-} //end of function bootDance
-
-
- const hasSeen = sessionStorage.getItem("danceSeen");
-
-  if (!hasSeen) {
-    sessionStorage.setItem("danceSeen", "true");
-    bootDance(); 
-}
-</script>
-
+ <meta name="description" content="welcome animation 3 boots dance">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body.bootDance {
@@ -290,3 +158,155 @@ body.bootDance {
   z-index: -1;
 }
 </style>
+
+
+
+</head>
+<body class="bootDance">
+
+
+<script>
+  /*add this script and the css <style>..</style> to a html page that has a body
+ darkens the page, has 3 single boots line dance, music notes above.. boots lean out and then the music notes drop .. as seen at http://unionbar.club 
+by Matt Hanley @thehanleymancan and Copilot
+  */
+
+function bootDance() { 
+document.addEventListener("DOMContentLoaded", () => {
+
+  /* --- SETUP --- */
+  const takeover = document.createElement("div");
+  takeover.id = "stage-takeover";
+  document.body.appendChild(takeover);
+
+  const container = document.createElement("div");
+  container.id = "bootline";
+  takeover.appendChild(container);
+
+  const spotlight = document.createElement("div");
+  spotlight.id = "spotlight";
+  container.appendChild(spotlight);
+
+  // the set of 3 single boots.. //
+
+  const bootsConfig = [
+    { src: "boots/boot-1.png", cls: "yellow", delay: 0 },
+    { src: "boots/boot-2.png", cls: "red",    delay: 200 },
+    { src: "boots/boot-3.png", cls: "black",  delay: 400 }
+  ];
+
+  const bootEls = [];
+
+  /* --- CREATE NOTES (idle pulse only) --- */
+  function createMusicNotes() {
+    const notes = ["🎵", "🎶", "🎵", "🎶"];
+    const spawned = [];
+
+    notes.forEach((note, i) => {
+      const el = document.createElement("div");
+      el.className = "music-note idle";
+      el.textContent = note;
+
+      const spread = window.innerWidth * 0.3;
+      const offset = (i - (notes.length - 1) / 2) * spread;
+      el.style.left = `calc(50% + ${offset}px)`;
+
+      takeover.appendChild(el);
+      spawned.push(el);
+    });
+
+    return spawned;
+  }
+
+  /* --- DROP NOTES AFTER FLICK --- */
+  function animateMusicNotes(spawned) {
+    spawned.forEach((el, i) => {
+      el.classList.remove("idle");
+
+      setTimeout(() => {
+        el.style.animation = `
+          dropDown 2.2s ease-out forwards,
+          pulseNote 1.1s ease-in-out
+        `;
+      }, i * 150);
+    });
+
+    setTimeout(() => {
+      spawned.forEach(el => el.classList.add("note-fade"));
+    }, 2600);
+
+    setTimeout(() => {
+      spawned.forEach(el => el.remove());
+    }, 3000);
+  }
+
+  /* Spawn notes immediately */
+  const spawnedNotes = createMusicNotes();
+
+  /* --- BOOTS ENTER --- */
+  bootsConfig.forEach((b) => {
+    const el = document.createElement("div");
+    el.className = `boot ${b.cls}`;
+    el.style.backgroundImage = `url('${b.src}')`;
+    container.appendChild(el);
+    bootEls.push(el);
+
+    setTimeout(() => {
+      el.classList.add("enter");
+    }, 400 + b.delay);
+
+    setTimeout(() => {
+      el.style.animation = "sway 0.6s ease-in-out 3";
+    }, 1200 + b.delay);
+  });
+
+  /* --- SPOTLIGHT POSITION --- */
+  setTimeout(() => {
+    const middleBoot = bootEls[1];
+    const bootRect = middleBoot.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+
+    spotlight.style.left = (bootRect.left - containerRect.left + bootRect.width/2 - 110) + "px";
+    spotlight.style.top  = (bootRect.top - containerRect.top + bootRect.height/2 - 140) + "px";
+  }, 200);
+
+  /* --- BOOT FLICK --- */
+  bootsConfig.forEach((b, index) => {
+    const el = bootEls[index];
+
+    setTimeout(() => {
+      el.style.animation = "preFlick 0.25s ease-out forwards";
+    }, 3000 + b.delay - 80);
+
+    setTimeout(() => {
+      el.style.animation = "flick 0.9s ease-out forwards";
+    }, 3000 + b.delay + 200);
+  });
+
+  /* --- TRIGGER NOTE DROP AFTER FLICK --- */
+  setTimeout(() => {
+    animateMusicNotes(spawnedNotes);
+    spotlight.style.opacity = 1;
+  }, 3600);
+
+  /* --- Fade out whole animation --- */
+  setTimeout(() => {
+    takeover.style.opacity = 0; 
+  }, 6500);
+
+
+}); //end of Dom content loaded 
+
+} //end of function bootDance
+
+
+ const hasSeen = sessionStorage.getItem("danceSeen");
+
+  if (!hasSeen) {
+    sessionStorage.setItem("danceSeen", "true");
+    bootDance(); 
+}
+</script>
+</body>
+</html>
+
